@@ -11,6 +11,8 @@ import ChuckNorris from './pages/ChuckNorris.vue';
 import RickAndMorty from './pages/RickAndMorty.vue';
 import CookieClicker from './pages/CookieClicker.vue';
 import Vibration from './pages/Vibration.vue';
+import Chat from './pages/Chat.vue';
+import Leaflet from './pages/Leaflet.vue';
 
 const routes = [
   { path: '/', component: ToDo, name: 'ToDo' },
@@ -19,6 +21,8 @@ const routes = [
   { path: '/rickandmorty', component: RickAndMorty, name: 'Rick And Morty' },
   { path: '/cookieclicker', component: CookieClicker, name: 'Cookie Clicker', meta: { container: false } },
   { path: '/vibration', component: Vibration, name: 'Vibration' },
+  { path: '/chat', component: Chat, name: 'Chat' },
+  { path: '/leaflet', component: Leaflet, name: 'Leaflet' },
 ];
 
 const router = createRouter({
