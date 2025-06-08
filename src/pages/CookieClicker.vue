@@ -45,7 +45,7 @@ setInterval(() => {
 
             <
             <figure class="image is-square" @click="cookies++; playAudio()">
-                <img src="C:\Users\opilane\Downloads\v1.png" />
+                <img src="https://newbloodstore.com/cdn/shop/files/Ultraplush_V1_blue_Plush_Toy-SV5-P-1.png?v=1741125476" />
             </figure>
         </div>
         <div class="column is-6 has-background-link">
