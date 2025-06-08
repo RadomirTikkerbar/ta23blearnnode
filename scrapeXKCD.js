@@ -1,37 +1,69 @@
 import axios from "axios";
-import * as cheerio from 'cheerio';
-import fs from 'fs';
-const sleep = function(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+import * as cheerio from "cheerio";
+import fs from "fs";
+import md5 from "md5";
+
+const cacheDir = "cache";
+if (!fs.existsSync(cacheDir)) {
+    fs.mkdirSync(cacheDir);
 }
 
-if(!fs.existsSync('cache')){
-    fs.mkdirSync('cache');
-}
-
-const cacheGet = (name) => {
-    if(fs.existsSync('cache/' + name + '.html')){
-        return fs.readFileSync('cache/' + name + '.html');
-    } 
-    return false;
-}
-
-const cacheSet = (name, value) => {
-   fs.writeFileSync('cache/' + name + '.html', value);
-}
-
-for(let i = 3088; i>3078; i--){
-    let data = cacheGet(i)
-    if(!data){
-        await sleep(1000);
-        console.log('!!!!! LIVE DATA');
-        let res = await axios.get(`https://xkcd.com/${i}/`);
-        data = res.data;
-        cacheSet(i, data);
+const getCachedPage = (urlHash) => {
+    const filePath = `${cacheDir}/${urlHash}.html`;
+    if (fs.existsSync(filePath)) {
+        return fs.readFileSync(filePath, "utf8");
     }
-    const $ = cheerio.load(data);
-    let src = $('#comic img').attr('src');
-    let title = $('#comic img').attr('alt');
-    let text = $('#comic img').attr('title');
-    console.log(src, title, text);
+    return null;
+};
+
+const saveToCache = (urlHash, content) => {
+    const filePath = `${cacheDir}/${urlHash}.html`;
+    fs.writeFileSync(filePath, content, "utf8");
+};
+
+async function scrapeComics() {
+    let currentUrl = "https://www.smbc-comics.com/";
+    const maxPages = 10;
+
+    for (let i = 0; i < maxPages; i++) {
+        try {
+            const urlHash = md5(currentUrl);
+            let htmlContent = getCachedPage(urlHash);
+
+            if (!htmlContent) {
+                console.log(currentUrl);
+                const response = await axios.get(currentUrl);
+                htmlContent = response.data;
+                saveToCache(urlHash, htmlContent);
+            } else {
+                console.log(`cache for ${currentUrl}`);
+            }
+
+            const $ = cheerio.load(htmlContent);
+
+            const comicImage = $("img#cc-comic");
+            const imageUrl = comicImage.attr("src");
+            const imageTitle = comicImage.attr("title") || null; 
+
+            if (!imageUrl) {
+                console.error(`unable to find image ${currentUrl}`);
+                break;
+            }
+
+            console.log(`${i + 1}:`, imageUrl, imageTitle);
+
+            const prevLink = $("a.cc-prev").attr("href");
+            if (!prevLink) {
+                console.error(`unable to find link ${currentUrl}`);
+                break;
+            }
+
+            currentUrl = new URL(prevLink, "https://www.smbc-comics.com/").href;
+        } catch (e) {
+            console.error(e.message);
+            break;
+        }
+    }
 }
+
+scrapeComics().catch((error) => console.error("error catched:", error.message));
