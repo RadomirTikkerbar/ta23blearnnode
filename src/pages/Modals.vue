@@ -28,4 +28,5 @@ let modalActive2 = ref(false);
     </Modal>
 
 </template>
-<style></style>
+<style>
+</style>
