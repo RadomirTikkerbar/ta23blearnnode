@@ -53,3 +53,9 @@
     min-height: 100%;
  }
 </style>
+
+<style scoped>
+ .card {
+    min-height: 100%;
+ }
+</style>
